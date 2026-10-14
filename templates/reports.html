@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Reports & Analytics{% endblock %}
+{% block page_title %}Reports & Analytics{% endblock %}
+{% block content %}
+<div class="welcome-row"><div><h2>Portfolio snapshot</h2><p>SQL-driven summaries for policy and claims operations.</p></div></div>
+<div class="stat-grid three">
+ <div class="stat-card"><div class="stat-top"><span>Claim approval rate</span><span class="stat-icon green">✓</span></div><div class="stat-value">{{ approval_rate }}%</div><div class="stat-foot">Approved or settled claims</div></div>
+ <div class="stat-card"><div class="stat-top"><span>Total settlements</span><span class="stat-icon blue">₹</span></div><div class="stat-value">₹{{ "{:,.0f}".format(settlement_total) }}</div><div class="stat-foot">Recorded settlement value</div></div>
+ <div class="stat-card"><div class="stat-top"><span>Premium dues</span><span class="stat-icon orange">◷</span></div><div class="stat-value">{{ premium_due|length }}</div><div class="stat-foot">Policies with premium below plan annual premium</div></div>
+</div>
+<div class="dashboard-grid">
+ <section class="panel wide"><div class="panel-head"><div><h3>Claims by status</h3><p>Count and requested value</p></div></div><div class="table-wrap"><table><thead><tr><th>Status</th><th>Claims</th><th>Amount requested</th></tr></thead><tbody>{% for r in claim_summary %}<tr><td><span class="badge {{ r.status|lower|replace(' ','-') }}">{{ r.status }}</span></td><td>{{ r.count }}</td><td>₹{{ "{:,.2f}".format(r.amount) }}</td></tr>{% else %}<tr><td colspan="3" class="empty">No claims.</td></tr>{% endfor %}</tbody></table></div></section>
+ <section class="panel"><div class="panel-head"><div><h3>Hospital claim activity</h3><p>Claim volume by hospital</p></div></div><div class="table-wrap"><table><thead><tr><th>Hospital</th><th>Count</th><th>Value</th></tr></thead><tbody>{% for r in hospital_summary %}<tr><td>{{ r.hospital_name }}</td><td>{{ r.claim_count }}</td><td>₹{{ "{:,.0f}".format(r.claim_value) }}</td></tr>{% endfor %}</tbody></table></div></section>
+ <section class="panel wide"><div class="panel-head"><div><h3>Premium collection</h3><p>Recorded payments against policies</p></div></div><div class="table-wrap"><table><thead><tr><th>Policy</th><th>Customer</th><th>Paid</th><th>Sum insured</th><th>Status</th></tr></thead><tbody>{% for r in premium_summary %}<tr><td>{{ r.policy_number }}</td><td>{{ r.full_name }}</td><td>₹{{ "{:,.0f}".format(r.paid) }}</td><td>₹{{ "{:,.0f}".format(r.sum_insured) }}</td><td><span class="badge {{ r.status|lower }}">{{ r.status }}</span></td></tr>{% endfor %}</tbody></table></div></section>
+ <section class="panel"><div class="panel-head"><div><h3>Premium due review</h3><p>Collected amount below plan premium</p></div></div><div class="table-wrap"><table><thead><tr><th>Policy</th><th>Customer</th><th>Paid / annual</th></tr></thead><tbody>{% for r in premium_due %}<tr><td>{{ r.policy_number }}</td><td>{{ r.full_name }}</td><td>₹{{ "{:,.0f}".format(r.paid) }} / ₹{{ "{:,.0f}".format(r.annual_premium) }}</td></tr>{% else %}<tr><td colspan="3" class="empty">No premium dues found.</td></tr>{% endfor %}</tbody></table></div></section>
+</div>
+{% endblock %}

@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Overview{% endblock %}
+{% block page_title %}Overview{% endblock %}
+{% block content %}
+<div class="welcome-row"><div><h2>Good to see you.</h2><p>Here's what's happening across policies and claims.</p></div><a class="button primary" href="{{ url_for('module_page', module='claims') }}">＋ New claim</a></div>
+<div class="stat-grid">
+ <div class="stat-card"><div class="stat-top"><span>Registered customers</span><span class="stat-icon violet">◉</span></div><div class="stat-value">{{ stats.customers }}</div><div class="stat-foot">Customer records</div></div>
+ <div class="stat-card"><div class="stat-top"><span>Active policies</span><span class="stat-icon green">▣</span></div><div class="stat-value">{{ stats.active_policies }}</div><div class="stat-foot">Valid today</div></div>
+ <div class="stat-card"><div class="stat-top"><span>Claims to review</span><span class="stat-icon orange">◷</span></div><div class="stat-value">{{ stats.claims_pending }}</div><div class="stat-foot">Pending or under review</div></div>
+ <div class="stat-card"><div class="stat-top"><span>Total settlements</span><span class="stat-icon blue">₹</span></div><div class="stat-value">₹{{ "{:,.0f}".format(stats.settled_total) }}</div><div class="stat-foot">Recorded payouts</div></div>
+</div>
+<div class="dashboard-grid">
+ <section class="panel wide"><div class="panel-head"><div><h3>Recent claims</h3><p>Latest submitted claim records</p></div><a href="{{ url_for('module_page', module='claims') }}">View all ↗</a></div>
+ <div class="table-wrap"><table><thead><tr><th>Claim</th><th>Customer / Hospital</th><th>Claim date</th><th>Amount</th><th>Status</th></tr></thead><tbody>
+ {% for r in recent %}<tr><td><strong>{{ r.claim_number }}</strong></td><td>{{ r.full_name }}<small>{{ r.hospital_name }}</small></td><td>{{ r.claim_date }}</td><td>₹{{ "{:,.0f}".format(r.amount_claimed) }}</td><td><span class="badge {{ r.status|lower|replace(' ','-') }}">{{ r.status }}</span></td></tr>{% else %}<tr><td colspan="5" class="empty">No claims found.</td></tr>{% endfor %}
+ </tbody></table></div></section>
+ <section class="panel"><div class="panel-head"><div><h3>Claim status</h3><p>Distribution by current status</p></div></div>
+ {% for r in status_rows %}<div class="status-line"><div><span>{{ r.status }}</span><strong>{{ r.count }}</strong></div><div class="bar"><span style="width:{{ [r.count*18,100]|min }}%"></span></div></div>{% else %}<p class="muted">No claims yet.</p>{% endfor %}
+ <a class="text-link" href="{{ url_for('reports') }}">Open analytics →</a></section>
+ <section class="panel wide"><div class="panel-head"><div><h3>Active policy register</h3><p>Policies whose end date has not passed</p></div><a href="{{ url_for('module_page', module='policies') }}">Manage policies ↗</a></div>
+ <div class="table-wrap"><table><thead><tr><th>Policy</th><th>Customer</th><th>Plan</th><th>Coverage</th><th>Valid until</th></tr></thead><tbody>
+ {% for p in active_policies %}<tr><td><strong>{{ p.policy_number }}</strong></td><td>{{ p.full_name }}</td><td>{{ p.plan_name }}</td><td>₹{{ "{:,.0f}".format(p.sum_insured) }}</td><td>{{ p.end_date }}</td></tr>{% else %}<tr><td colspan="5" class="empty">No active policies.</td></tr>{% endfor %}
+ </tbody></table></div></section>
+ <section class="panel quick-panel"><div class="panel-head"><div><h3>Quick actions</h3><p>Common workflows</p></div></div>
+ <a class="quick-action" href="{{ url_for('module_page', module='policies') }}"><span class="quick-icon">▣</span><span><strong>Issue a policy</strong><small>Register coverage and dates</small></span><b>→</b></a>
+ <a class="quick-action" href="{{ url_for('module_page', module='premium_payments') }}"><span class="quick-icon">₹</span><span><strong>Collect premium</strong><small>Record a premium payment</small></span><b>→</b></a>
+ <a class="quick-action" href="{{ url_for('module_page', module='assessments') }}"><span class="quick-icon">✓</span><span><strong>Assess a claim</strong><small>Enter eligible amount</small></span><b>→</b></a>
+ <a class="quick-action" href="{{ url_for('module_page', module='settlements') }}"><span class="quick-icon">↗</span><span><strong>Settle a claim</strong><small>Record an approved payout</small></span><b>→</b></a>
+ </section>
+</div>
+{% endblock %}

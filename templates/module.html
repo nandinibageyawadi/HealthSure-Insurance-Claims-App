@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}{{ conf.title }}{% endblock %}
+{% block page_title %}{{ conf.title }}{% endblock %}
+{% block content %}
+<div class="module-intro"><div><p>Manage and review {{ conf.title|lower }} records in the local database.</p><div class="inline-note">Changes are saved to <code>health_insurance.db</code>.</div></div><span class="count-pill">{{ rows|length }} records shown</span></div>
+<div class="module-layout">
+ <section class="panel form-panel"><div class="panel-head"><div><h3>Add {{ conf.singular|lower }}</h3><p>Fields marked * are required.</p></div></div>
+ <form method="post" class="record-form">
+ {% for f in field_data %}
+ <label>{{ f.label }}{% if f.required %} <b>*</b>{% endif %}
+ {% if f.type.startswith('select:') or f.type.startswith('options:') %}
+ <select name="{{ f.key }}" {% if f.required %}required{% endif %}><option value="">Choose {{ f.label|lower }}</option>{% for value,label in f.choices %}<option value="{{ value }}">{{ label }}</option>{% endfor %}</select>
+ {% elif f.type == 'text' and f.key in ['description','address','notes','reason','remarks','resolution_notes'] %}
+ <textarea name="{{ f.key }}" rows="2" {% if f.required %}required{% endif %}></textarea>
+ {% else %}
+ <input name="{{ f.key }}" type="{{ f.type }}" step="{% if f.type == 'number' %}0.01{% else %}any{% endif %}" {% if f.required %}required{% endif %} {% if f.type == 'date' %}value="{{ '' }}"{% endif %}>
+ {% endif %}
+ </label>
+ {% endfor %}
+ <button class="button primary full">Save {{ conf.singular }}</button>
+ </form></section>
+ <section class="panel data-panel"><div class="panel-head"><div><h3>{{ conf.title }} register</h3><p>Most recent records first</p></div>
+ <form class="small-search" method="get"><input name="q" value="{{ search }}" placeholder="Filter records"><button>Filter</button></form></div>
+ <div class="table-wrap"><table><thead><tr>{% for c in conf.columns %}<th>{{ c.replace('_',' ')|title }}</th>{% endfor %}</tr></thead><tbody>
+ {% for row in rows %}<tr>{% for c in conf.columns %}
+ <td>{% if c.endswith('_id') and row.get(c+'_label') %}{{ row.get(c+'_label') }}{% elif c in ['sum_insured','amount','amount_claimed','eligible_amount','coverage_limit','annual_premium','cost'] %}₹{{ "{:,.2f}".format(row[c] or 0) }}{% elif c == 'verified' %}{% if row[c] %}<span class="badge approved">Verified</span>{% else %}<span class="badge pending">Pending</span>{% endif %}{% elif c == 'status' %}<span class="badge {{ (row[c] or '')|lower|replace(' ','-') }}">{{ row[c] }}</span>{% else %}{{ row[c] if row[c] is not none else '—' }}{% endif %}</td>
+ {% endfor %}</tr>{% else %}<tr><td colspan="{{ conf.columns|length }}" class="empty">No records yet. Add the first record using the form.</td></tr>{% endfor %}
+ </tbody></table></div>
+ <div class="table-foot">Showing up to 200 records. Use the filter to find a record by text.</div>
+ </section>
+</div>
+{% endblock %}

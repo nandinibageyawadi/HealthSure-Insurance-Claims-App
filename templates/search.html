@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}Search{% endblock %}
+{% block page_title %}Search results{% endblock %}
+{% block content %}
+<section class="panel"><div class="panel-head"><div><h3>Search claims, policies and customers</h3><p>Results for “{{ q }}”</p></div></div>
+<div class="table-wrap"><table><thead><tr><th>Claim</th><th>Policy</th><th>Customer</th><th>Hospital</th><th>Date</th><th>Amount</th><th>Status</th></tr></thead><tbody>
+{% for r in results %}<tr><td>{{ r.claim_number }}</td><td>{{ r.policy_number }}</td><td>{{ r.full_name }}</td><td>{{ r.hospital_name }}</td><td>{{ r.claim_date }}</td><td>₹{{ "{:,.0f}".format(r.amount_claimed) }}</td><td><span class="badge {{ r.status|lower|replace(' ','-') }}">{{ r.status }}</span></td></tr>{% else %}<tr><td colspan="7" class="empty">No matching records. Try a claim number, policy number or customer name.</td></tr>{% endfor %}
+</tbody></table></div></section>
+{% endblock %}

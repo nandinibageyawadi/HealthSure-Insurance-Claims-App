@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}HealthSure{% endblock %} | HealthSure</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<div class="app-shell">
+<aside class="sidebar">
+  <a class="brand" href="{{ url_for('dashboard') }}"><span class="brand-mark">+</span><span><strong>HealthSure</strong><small>Policy & Claims</small></span></a>
+  <div class="nav-label">WORKSPACE</div>
+  <a class="nav-item {% if request.endpoint=='dashboard' %}active{% endif %}" href="{{ url_for('dashboard') }}"><span>▦</span> Overview</a>
+  <a class="nav-item {% if request.endpoint=='reports' %}active{% endif %}" href="{{ url_for('reports') }}"><span>▤</span> Reports & Analytics</a>
+  <div class="nav-label">POLICY MANAGEMENT</div>
+  {% for key in ['customers','dependents','plans','policies','premium_payments','hospitals'] %}
+    <a class="nav-item {% if request.view_args and request.view_args.get('module')==key %}active{% endif %}" href="{{ url_for('module_page', module=key) }}"><span>{{ modules[key].icon }}</span>{{ modules[key].title }}</a>
+  {% endfor %}
+  <div class="nav-label">CLAIMS OPERATIONS</div>
+  {% for key in ['claims','treatments','claim_documents','assessments','decisions','settlements','appeals'] %}
+    <a class="nav-item {% if request.view_args and request.view_args.get('module')==key %}active{% endif %}" href="{{ url_for('module_page', module=key) }}"><span>{{ modules[key].icon }}</span>{{ modules[key].title }}</a>
+  {% endfor %}
+  <div class="sidebar-bottom"><div class="avatar">HS</div><div><strong>Claims Desk</strong><small>Local demo workspace</small></div></div>
+</aside>
+<main class="main-area">
+  <header class="topbar">
+    <div><div class="eyebrow">HEALTH INSURANCE OPERATIONS</div><h1>{% block page_title %}Overview{% endblock %}</h1></div>
+    <form class="global-search" action="{{ url_for('global_search') }}"><span>⌕</span><input name="q" placeholder="Search claim, policy, customer..." value="{{ request.args.get('q','') }}"><button>Search</button></form>
+  </header>
+  <div class="content">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}<div class="flash-stack">{% for category, message in messages %}<div class="flash {{ category }}">{{ message }}</div>{% endfor %}</div>{% endif %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+    <footer>HealthSure · Academic DBMS prototype · Fictional demonstration data · {{ current_year }}</footer>
+  </div>
+</main>
+</div>
+</body></html>
